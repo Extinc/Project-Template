@@ -1,0 +1,5 @@
+rootProject.name = 'multi-project-build'
+include ":projects:spring-proj-1"
+
+project(":projects:spring-proj-1").projectDir = file('projects/spring-proj-1')
+

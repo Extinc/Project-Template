@@ -1,0 +1,14 @@
+plugins {
+	id 'sample-project.library-conventions'
+}
+
+group = 'org.personal'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+	implementation libs.ch.qos.logback
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
