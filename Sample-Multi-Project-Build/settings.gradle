@@ -1,4 +1,17 @@
 rootProject.name = 'multi-project-build'
+
+dependencyResolutionManagement {
+    versionCatalogs {
+
+        testLibs {
+            from(files("./gradle/test-libs.versions.toml"))
+        }
+        customLibs {
+            from(files("./gradle/custom-libs.versions.toml"))
+        }
+    }
+}
+
 include ":projects:spring-proj-1"
 
 project(":projects:spring-proj-1").projectDir = file('projects/spring-proj-1')
