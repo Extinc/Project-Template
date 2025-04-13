@@ -7,7 +7,7 @@ version = '0.0.1-SNAPSHOT'
 
 dependencies {
 	implementation libs.ch.qos.logback
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.4'
+	testImplementation testLibs.spring.boot.starter.test
 	testImplementation testLibs.spring.restdocs.mockmvc
 }
 

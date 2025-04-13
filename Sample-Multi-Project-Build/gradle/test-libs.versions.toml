@@ -1,4 +1,6 @@
 [versions]
 
 [libraries]
-spring-restdocs-mockmvc = {group= "org.springframework.restdocs", name= "spring-restdocs-mockmvc", version= "3.0.3"}
+spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test", version = "3.4.4" }
+spring-restdocs-mockmvc = { group = "org.springframework.restdocs", name = "spring-restdocs-mockmvc", version = "3.0.3" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version = "1.12.2" }

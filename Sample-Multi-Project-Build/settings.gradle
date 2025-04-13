@@ -1,16 +1,6 @@
 rootProject.name = 'multi-project-build'
 
-dependencyResolutionManagement {
-    versionCatalogs {
-
-        testLibs {
-            from(files("./gradle/test-libs.versions.toml"))
-        }
-        customLibs {
-            from(files("./gradle/custom-libs.versions.toml"))
-        }
-    }
-}
+apply from: "./gradle/dependency-resolution-management.gradle"
 
 include ":projects:spring-proj-1"
 
