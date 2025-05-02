@@ -1,4 +1,0 @@
-[versions]
-
-[libraries]
-spring-restdocs-mockmvc = {group= "org.springframework.restdocs", name= "spring-restdocs-mockmvc", version= "3.0.3"}

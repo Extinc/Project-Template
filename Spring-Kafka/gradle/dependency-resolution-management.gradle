@@ -1,6 +1,0 @@
-dependencyResolutionManagement {
-    versionCatalogs {
-        maybeCreate("testLibs").from(files("./test-libs.versions.toml"))
-        maybeCreate("customLibs").from(files("./custom-libs.versions.toml"))
-    }
-}

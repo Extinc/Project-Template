@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="KafkaProducerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="Spring-Kafka.projects.producer.main" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="org.personal.producer.SpringKafkaProducerApplication" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
-</component>

@@ -1,7 +1,0 @@
-[versions]
-springboot = "3.4.4"
-
-[libraries]
-spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web", version.ref = "springboot" }
-ch-qos-logback = { group = "ch.qos.logback", name = "logback-core", version = "1.5.18" }
-spring-kafka = { group = "org.springframework.kafka", name = "spring-kafka", version = "3.3.4" }

@@ -1,7 +1,0 @@
-rootProject.name = 'Spring-Kafka'
-apply from: "./gradle/dependency-resolution-management.gradle"
-
-include ":projects:producer"
-
-project(":projects:producer").projectDir = file('projects/producer')
-
