@@ -27,7 +27,7 @@ services:
     restart: on-failure
     profiles: [ sonarqube ]
     environment:
-      SONAR_HOST_URL: "http://sonarqube:9000"
+      SONAR_HOST_URL: "http://sonarqube:9001"
       SONAR_TOKEN: "sqa_ba2bc8a786a80c91c5e38e504adf13dd0c57ae44"
     volumes:
       - ./Spring-Kafka/projects/producer/:/usr/src/
@@ -39,18 +39,42 @@ services:
       - no_internet
 
   kafka-broker:
-      container_name: KafkaBroker
+      container_name: kafka_broker
       image: apache/kafka:latest
-      restart: on-failure
       profiles: [ kafka ]
+      environment:
+        KAFKA_NODE_ID: 1
+        KAFKA_PROCESS_ROLES: "broker,controller"
+        KAFKA_LISTENERS: "CONTROLLER://localhost:9001,HOST://localhost:9002,EXTERNAL://kafka-broker:9003"
+        KAFKA_ADVERTISED_LISTENERS: "HOST://localhost:9002,EXTERNAL://kafka-broker:9003"
+        KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,HOST:PLAINTEXT"
+        KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9001"
+        # Listener to use for broker-to-broker communication
+        KAFKA_INTER_BROKER_LISTENER_NAME: EXTERNAL
+        # Required for a single node cluster
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       ports:
-        - "5432:5432"
+        - "9002:9002"
+        - "9003:9003"
       networks:
         - kafka_network
-        - no_internet      
+
+  kafka-ui:
+      container_name: kafka_ui
+      image: obsidiandynamics/kafdrop:latest
+      profiles: [ kafka ]
+      environment:
+        KAFKA_BROKERCONNECT: "kafka-broker:9003"
+      ports:
+        - "9004:9000"
+      networks:
+        - kafka_network
+      depends_on:
+        - kafka-broker
 
   database:
-    container_name: Database
+    container_name: database
     image: postgres:17
     restart: on-failure
     profiles: [ sonarqube, db ]

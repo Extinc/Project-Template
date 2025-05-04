@@ -9,17 +9,17 @@
 5. To Configure language for project
     - Create Project > Quality Profiles
 
+# Kafka
 
-# Common Issues
-1. If database unable to detect role.
-    - check if changed any data need to remove volume to reset the data.
+1. Kafka UI for broker : UI for Apache Kafka, Kafdrop, Lenses
+
 
 
 <!-- # Others
 
 - [Commands](./docs/commands.md) -->
 
-## Commands
+# Commands
 1. To <b>start</b>  for specific services
 ```bash
 docker compose up <service-name> -d
@@ -38,3 +38,12 @@ docker compose down -v <service-name>
 # Notes
 
 1. If a Docker Compose service is assigned to a profile and depends on other services, those dependent services must be included in the same profile(s).
+
+
+
+# Common Issues
+1. If database unable to detect role.
+    - check if changed any data need to remove volume to reset the data.
+
+2. Kafkdrop unable to connect.
+    - check the  listener hosts to see if it is using the service name.
