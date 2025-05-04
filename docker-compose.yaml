@@ -1,59 +1,71 @@
 services:
   sonarqube:
-    container_name: sonarqube
+    container_name: SonarQube
+    restart: on-failure
     image: sonarqube:community
+    profiles: [ sonarqube ]
     environment:
-      SONAR_JDBC_URL: "jdbc:postgresql://sonar_db:5432/sonarqube"
-      SONAR_JDBC_USERNAME: "sonar"
-      SONAR_JDBC_PASSWORD: "sonar"
+      SONAR_JDBC_URL: "jdbc:postgresql://database:5432/pgdb"
+      SONAR_JDBC_USERNAME: projectpg
+      SONAR_JDBC_PASSWORD: pguser
     ports:
       - "9001:9000"
     volumes:
-      - sonarqube_data:/opt/data/sonarqube/data
-      - sonarqube_logs:/opt/data/sonarqube/logs
-      - sonarqube_extensions:/opt/data/sonarqube/extensions
+      - "sonarqube_data:/opt/data/sonarqube/data"
+      - "sonarqube_logs:/opt/data/sonarqube/logs"
+      - "sonarqube_extensions:/opt/data/sonarqube/extensions"
     expose:
       - 9000
     depends_on:
-      - sonar_db
+      - database
     networks:
       - sonarqube_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/about"]
-      interval: 10s
-      timeout: 30s
-      retries: 5
-  sonar_db:
-    container_name: sonarqube_db
-    image: postgres:17
-    environment:
-      POSTGRES_DB: "sonarqube"
-      POSTGRES_USER: "sonar"
-      POSTGRES_PASSWORD: "sonar"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgresql:/var/lib/postgresql
-      - postgresql_data:/var/lib/postgresql/data
-    networks:
-      - sonarqube_network
-      - sonar_no_internet
-      
-  sonarscaner:
-    restart: on-failure
-    container_name: sonarscanner
+
+  spring-proj-sonarscanner:
+    container_name: SpringProjSonarScanner
     image: sonarsource/sonar-scanner-cli:latest
+    restart: on-failure
+    profiles: [ sonarqube ]
     environment:
       SONAR_HOST_URL: "http://sonarqube:9000"
-      SONAR_TOKEN: "sqa_c5f1197a2af142a08e5a2447e96a068ddd505931"
+      SONAR_TOKEN: "sqa_ba2bc8a786a80c91c5e38e504adf13dd0c57ae44"
     volumes:
       - ./Spring-Kafka/projects/producer/:/usr/src/
     depends_on:
       - sonarqube
-      - sonar_db
+      - database
     networks:
       - sonarqube_network
-      - sonar_no_internet
+      - no_internet
+
+  kafka-broker:
+      container_name: KafkaBroker
+      image: apache/kafka:latest
+      restart: on-failure
+      profiles: [ kafka ]
+      ports:
+        - "5432:5432"
+      networks:
+        - kafka_network
+        - no_internet      
+
+  database:
+    container_name: Database
+    image: postgres:17
+    restart: on-failure
+    profiles: [ sonarqube, db ]
+    environment:
+      POSTGRES_DB: pgdb
+      POSTGRES_USER: projectpg
+      POSTGRES_PASSWORD: pguser
+    ports:
+      - "5432:5432"
+    volumes:
+      - "postgresql:/var/lib/postgresql"
+      - "postgresql_data:/var/lib/postgresql/data"
+    networks:
+      - sonarqube_network
+      - database
 
 volumes:
   sonarqube_data:
@@ -65,6 +77,10 @@ volumes:
 networks:
   sonarqube_network:
     driver: bridge
-  sonar_no_internet:
+  no_internet:
     driver: bridge
     internal: true
+  kafka_network:
+    driver: bridge
+  database:
+    driver: bridge

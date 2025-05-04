@@ -1,8 +1,10 @@
-rootProject.name = 'multi-project-build'
+rootProject.name = 'SpringProject'
 
 apply from: "./gradle/dependency-resolution-management.gradle"
 
-include ":projects:spring-proj-1"
+include ":projects:app-service"
+include ":projects:auth-service"
 
-project(":projects:spring-proj-1").projectDir = file('projects/spring-proj-1')
+project(":projects:app-service").projectDir = file('projects/app-service')
+project(":projects:auth-service").projectDir = file('projects/auth-service')
 
