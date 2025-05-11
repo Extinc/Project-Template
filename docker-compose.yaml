@@ -5,17 +5,15 @@ services:
     image: sonarqube:community
     profiles: [ sonarqube ]
     environment:
-      SONAR_JDBC_URL: "jdbc:postgresql://database:5432/pgdb"
+      SONAR_JDBC_URL: jdbc:postgresql://database:5432/pgdb
       SONAR_JDBC_USERNAME: projectpg
       SONAR_JDBC_PASSWORD: pguser
     ports:
-      - "9001:9000"
+      - 9001:9000
     volumes:
-      - "sonarqube_data:/opt/data/sonarqube/data"
-      - "sonarqube_logs:/opt/data/sonarqube/logs"
-      - "sonarqube_extensions:/opt/data/sonarqube/extensions"
-    expose:
-      - 9000
+      - sonarqube_data:/opt/data/sonarqube/data
+      - sonarqube_logs:/opt/data/sonarqube/logs
+      - sonarqube_extensions:/opt/data/sonarqube/extensions
     depends_on:
       - database
     networks:
@@ -27,10 +25,10 @@ services:
     restart: on-failure
     profiles: [ sonarqube ]
     environment:
-      SONAR_HOST_URL: "http://sonarqube:9001"
-      SONAR_TOKEN: "sqa_ba2bc8a786a80c91c5e38e504adf13dd0c57ae44"
+      SONAR_HOST_URL: http://sonarqube:9000
+      SONAR_TOKEN: sqp_b68637060a9579dbd7b23b86d709ce9d968ad654"
     volumes:
-      - ./Spring-Kafka/projects/producer/:/usr/src/
+      - ./SpringProject/projects/app-service/:/usr/src/
     depends_on:
       - sonarqube
       - database
@@ -44,19 +42,18 @@ services:
       profiles: [ kafka ]
       environment:
         KAFKA_NODE_ID: 1
-        KAFKA_PROCESS_ROLES: "broker,controller"
-        KAFKA_LISTENERS: "CONTROLLER://localhost:9001,HOST://localhost:9002,EXTERNAL://kafka-broker:9003"
-        KAFKA_ADVERTISED_LISTENERS: "HOST://localhost:9002,EXTERNAL://kafka-broker:9003"
-        KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,HOST:PLAINTEXT"
-        KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9001"
+        KAFKA_PROCESS_ROLES: broker,controller
+        KAFKA_LISTENERS: CONTROLLER://localhost:9091,EXTERNAL://0.0.0.0:9092,INTERNAL://kafka-broker:9093
+        KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092,INTERNAL://kafka-broker:9093
+        KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+        KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
         # Listener to use for broker-to-broker communication
-        KAFKA_INTER_BROKER_LISTENER_NAME: EXTERNAL
+        KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
         # Required for a single node cluster
         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       ports:
-        - "9002:9002"
-        - "9003:9003"
+        - 9092:9092
       networks:
         - kafka_network
 
@@ -65,9 +62,9 @@ services:
       image: obsidiandynamics/kafdrop:latest
       profiles: [ kafka ]
       environment:
-        KAFKA_BROKERCONNECT: "kafka-broker:9003"
+        KAFKA_BROKERCONNECT: kafka-broker:9093
       ports:
-        - "9004:9000"
+        - 9003:9000
       networks:
         - kafka_network
       depends_on:
@@ -83,10 +80,10 @@ services:
       POSTGRES_USER: projectpg
       POSTGRES_PASSWORD: pguser
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes:
-      - "postgresql:/var/lib/postgresql"
-      - "postgresql_data:/var/lib/postgresql/data"
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
     networks:
       - sonarqube_network
       - database

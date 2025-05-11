@@ -13,6 +13,13 @@
 
 1. Kafka UI for broker : UI for Apache Kafka, Kafdrop, Lenses
 
+# Gradle
+
+## How to upgrade gradle wrapper
+reference: https://docs.gradle.org/current/userguide/gradle_wrapper.html
+```bash
+./gradlew wrapper --gradle-version latest 
+``` 
 
 
 <!-- # Others

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AuthApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-    <option name="ACTIVE_PROFILES" value="spring.profiles.active=dev" />
+    <option name="ACTIVE_PROFILES" value="dev" />
     <module name="SpringProject.projects.auth-service.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="org.personal.authservice.AuthApplication" />
     <method v="2">

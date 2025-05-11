@@ -11,3 +11,8 @@
 | Variable/Bean     | 	camelCase	                            | userService, orderRepo                  |
 | Constants	        | SCREAMING_SNAKE_CASE                   | 	MAX_SIZE, DEFAULT_TIMEOUT              |
 | Enum              | 	PascalCase (name), UPPERCASE (values) | 	LeaveStatus, values: PENDING, APPROVED |
+
+## URL
+
+- https://central.sonatype.com
+- https://mvnrepository.com

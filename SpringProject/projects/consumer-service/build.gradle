@@ -8,7 +8,6 @@ version = '0.0.1-SNAPSHOT'
 dependencies {
 	implementation libs.ch.qos.logback
 	implementation libs.spring.kafka
-	implementation libs.jackson.core
 	testImplementation testLibs.spring.boot.starter.test
 	testImplementation testLibs.spring.restdocs.mockmvc
 	runtimeOnly libs.postgresql

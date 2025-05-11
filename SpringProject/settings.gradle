@@ -4,7 +4,9 @@ apply from: "./gradle/dependency-resolution-management.gradle"
 
 include ":projects:app-service"
 include ":projects:auth-service"
+include ":projects:consumer-service"
 
 project(":projects:app-service").projectDir = file('projects/app-service')
 project(":projects:auth-service").projectDir = file('projects/auth-service')
+project(":projects:consumer-service").projectDir = file('projects/consumer-service')
 
