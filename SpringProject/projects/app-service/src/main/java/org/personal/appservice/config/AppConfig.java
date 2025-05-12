@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationPropertiesScan(basePackages = "org.personal.appservice.config")
+@ConfigurationPropertiesScan
 public class AppConfig {
 }

@@ -8,6 +8,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.personal.appservice.config.properties.KafkaProperties;
+import org.personal.appservice.enumeration.Topic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +29,12 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
+
+    private final KafkaProperties kafkaProperties;
+
+    public KafkaConfig(KafkaProperties kafkaProperties) {
+        this.kafkaProperties = kafkaProperties;
+    }
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
@@ -50,7 +58,6 @@ public class KafkaConfig {
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> configs = new HashMap<>();
         configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-
         return new DefaultKafkaConsumerFactory<>(configs, new StringDeserializer(), new JsonDeserializer<>(Object.class));
     }
 
@@ -63,7 +70,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic testTopic() {
-        return TopicBuilder.name("TEST")
+        return TopicBuilder.name(kafkaProperties.getTopic().get(Topic.AUTH))
                 .partitions(1)
                 .replicas(1)
                 .config(TopicConfig.MAX_COMPACTION_LAG_MS_CONFIG, "10")

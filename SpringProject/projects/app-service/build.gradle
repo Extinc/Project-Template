@@ -1,5 +1,6 @@
 plugins {
 	id 'sample-project.library-conventions'
+	alias(libs.plugins.spring.gradle)
 }
 
 group = 'org.personal'
@@ -9,6 +10,8 @@ dependencies {
 	implementation libs.ch.qos.logback
 	implementation libs.spring.kafka
 	implementation libs.jackson.core
+
+	annotationProcessor libs.spring.boot.configuration.processor
 	testImplementation testLibs.spring.boot.starter.test
 	testImplementation testLibs.spring.restdocs.mockmvc
 	runtimeOnly libs.postgresql
