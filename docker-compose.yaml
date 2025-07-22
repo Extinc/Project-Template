@@ -19,14 +19,14 @@ services:
     networks:
       - sonarqube_network
 
-  spring-proj-sonarscanner:
-    container_name: SpringProjSonarScanner
+  app-service-sonarscan:
+    container_name: AppServiceSonarScan
     image: sonarsource/sonar-scanner-cli:latest
     restart: on-failure
     profiles: [ sonarqube ]
     environment:
       SONAR_HOST_URL: http://sonarqube:9000
-      SONAR_TOKEN: sqp_b68637060a9579dbd7b23b86d709ce9d968ad654"
+      SONAR_TOKEN: sqa_a063cfa4dd7cf325bffcc835315a544565b1d723
     volumes:
       - ./SpringProject/projects/app-service/:/usr/src/
     depends_on:
@@ -87,7 +87,24 @@ services:
     networks:
       - sonarqube_network
       - database
-
+  keycloak:
+    container_name: keycloak
+    build:
+      context: .
+      dockerfile: dockerfiles/keycloak.Dockerfile
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB_URL: jdbc:postgresql://database/keycloak
+      KC_DB: postgres
+    command: ["start-dev"]
+    networks:
+      - database
+    volumes:
+      - ./keycloak:/opt/keycloak/files/
 volumes:
   sonarqube_data:
   sonarqube_logs:
