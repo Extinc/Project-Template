@@ -1,6 +1,7 @@
 plugins {
 	id 'sample-project.library-conventions'
 	alias(libs.plugins.spring.gradle)
+	id 'com.gradleup.shadow' version "8.3.8"
 }
 
 group = 'org.personal'
@@ -19,4 +20,11 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+shadowJar {
+	archiveBaseName.set("my-app")
+	archiveVersion.set("")       // remove version from filename
+	archiveClassifier.set("all") // default is "all"
+	mergeServiceFiles()          // if you need to merge service files (SPI)
 }
