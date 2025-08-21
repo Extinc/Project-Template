@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 # Variables
 IAM_AUTH_VERSION=2.3.0
 
@@ -19,7 +18,7 @@ read TOPIC_NAME
 
 # Create topic using Zookeeper connection
 $KAFKA_PATH/bin/kafka-topics.sh \
-  --bootstrap-server $ZK_CONNECT \
+  --bootstrap-server $BOOTSTRAP_SERVER \
   --create \
   --topic "$TOPIC_NAME" \
   --command-config $KAFKA_PATH/$KAFKA_IAM_CONFIG \
