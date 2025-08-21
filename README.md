@@ -13,6 +13,7 @@
 
 1. Kafka UI for broker : UI for Apache Kafka, Kafdrop, Lenses
 
+2. Scripts for Creating topic within AWS using `scripts/create-topic-kafka.sh`
 # Gradle
 
 ## How to upgrade gradle wrapper
@@ -45,7 +46,6 @@ docker compose down -v <service-name>
 # Notes
 
 1. If a Docker Compose service is assigned to a profile and depends on other services, those dependent services must be included in the same profile(s).
-
 
 
 # Common Issues
