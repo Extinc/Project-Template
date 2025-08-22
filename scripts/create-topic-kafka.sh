@@ -23,6 +23,6 @@ $KAFKA_PATH/bin/kafka-topics.sh \
   --topic "$TOPIC_NAME" \
   --command-config $KAFKA_PATH/$KAFKA_IAM_CONFIG \
   --partitions $PARTITIONS \
-  --replication-factor $REPLICATION_FACTOR \
+  --replication-factor $REPLICATION_FACTOR
 
 echo "Topic '$TOPIC_NAME' created."
