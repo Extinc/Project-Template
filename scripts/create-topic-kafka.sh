@@ -16,7 +16,7 @@ echo $CLASSPATH
 echo "Enter the Kafka topic name to create:"
 read TOPIC_NAME
 
-# Create topic using Zookeeper connection
+# Create topic using bootstrap connection
 $KAFKA_PATH/bin/kafka-topics.sh \
   --bootstrap-server $BOOTSTRAP_SERVER \
   --create \
