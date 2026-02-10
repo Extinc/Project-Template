@@ -1,0 +1,36 @@
+services:
+  hoppscotch-migrate:
+    container_name: hoppscotch-migrate
+    image: hoppscotch/hoppscotch:latest
+    restart: on-failure
+    env_file: ./.hoppscotch-migrate.env
+    command: ["sh", "-c", "pnpm exec prisma migrate deploy"]
+    networks:
+      - database
+  hoppscotch:
+    container_name: hoppscotch
+    image: hoppscotch/hoppscotch:latest
+    restart: on-failure
+    ports:
+      - 5000:5000
+    env_file: ./.hoppscotch.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - database
+      - hoppscotch-proxy
+  proxyscotch:
+    container_name: proxyscotch
+    image: hoppscotch/proxyscotch:latest
+    ports:
+      - 9159:9159
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - database
+      - hoppscotch-proxy
+networks:
+  database:
+    driver: bridge
+  hoppscotch-proxy:
+    driver: bridge
