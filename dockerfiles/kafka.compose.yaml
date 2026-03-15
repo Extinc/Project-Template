@@ -1,0 +1,37 @@
+
+
+services:
+  kafka-broker:
+      container_name: kafka_broker
+      image: apache/kafka:latest
+      environment:
+        KAFKA_NODE_ID: 1
+        KAFKA_PROCESS_ROLES: broker,controller
+        KAFKA_LISTENERS: CONTROLLER://localhost:9091,EXTERNAL://0.0.0.0:9092,INTERNAL://kafka-broker:9093
+        KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092,INTERNAL://kafka-broker:9093
+        KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+        KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+        # Listener to use for broker-to-broker communication
+        KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+        # Required for a single node cluster
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      ports:
+        - 9092:9092
+      networks:
+        - kafka_network
+
+  kafka-ui:
+      container_name: kafka_ui
+      image: obsidiandynamics/kafdrop:latest
+      environment:
+        KAFKA_BROKERCONNECT: kafka-broker:9093
+      ports:
+        - 9003:9000
+      networks:
+        - kafka_network
+      depends_on:
+        - kafka-broker
+networks:
+  kafka_network:
+    driver: bridge

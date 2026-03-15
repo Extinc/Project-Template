@@ -1,110 +1,50 @@
-services:
-  sonarqube:
-    container_name: SonarQube
-    restart: on-failure
-    image: sonarqube:community
-    profiles: [ sonarqube ]
-    environment:
-      SONAR_JDBC_URL: jdbc:postgresql://database:5432/pgdb
-      SONAR_JDBC_USERNAME: projectpg
-      SONAR_JDBC_PASSWORD: pguser
-    ports:
-      - 9001:9000
-    volumes:
-      - sonarqube_data:/opt/data/sonarqube/data
-      - sonarqube_logs:/opt/data/sonarqube/logs
-      - sonarqube_extensions:/opt/data/sonarqube/extensions
-    depends_on:
-      - database
-    networks:
-      - sonarqube_network
+name: personal-template
 
-  app-service-sonarscan:
-    container_name: AppServiceSonarScan
-    image: sonarsource/sonar-scanner-cli:latest
-    restart: on-failure
-    profiles: [ sonarqube ]
-    environment:
-      SONAR_HOST_URL: http://sonarqube:9000
-      SONAR_TOKEN: sqa_a063cfa4dd7cf325bffcc835315a544565b1d723
-    volumes:
-      - ./SpringProject/projects/app-service/:/usr/src/
-    depends_on:
-      - sonarqube
-      - database
-    networks:
-      - sonarqube_network
-      - no_internet
+include:
+  - ./dockerfiles/database.compose.yaml
+  - ./dockerfiles/kafka.compose.yaml
+  # - ./dockerfiles/hoppscotch.compose.yaml
+  # - ./dockerfiles/mail-server.compose.yaml
+  # - ./dockerfiles/hardened-image.compose.yaml
 
-  kafka-broker:
-      container_name: kafka_broker
-      image: apache/kafka:latest
-      profiles: [ kafka ]
-      environment:
-        KAFKA_NODE_ID: 1
-        KAFKA_PROCESS_ROLES: broker,controller
-        KAFKA_LISTENERS: CONTROLLER://localhost:9091,EXTERNAL://0.0.0.0:9092,INTERNAL://kafka-broker:9093
-        KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092,INTERNAL://kafka-broker:9093
-        KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
-        KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
-        # Listener to use for broker-to-broker communication
-        KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-        # Required for a single node cluster
-        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      ports:
-        - 9092:9092
-      networks:
-        - kafka_network
+# services:
+#   sonarqube:
+#     container_name: SonarQube
+#     restart: on-failure
+#     image: sonarqube:community
+#     profiles: [ sonarqube ]
+#     environment:
+#       SONAR_JDBC_URL: jdbc:postgresql://database:5432/pgdb
+#       SONAR_JDBC_USERNAME: projectpg
+#       SONAR_JDBC_PASSWORD: pguser
+#     ports:
+#       - 9001:9000
+#     volumes:
+#       - sonarqube_data:/opt/data/sonarqube/data
+#       - sonarqube_logs:/opt/data/sonarqube/logs
+#       - sonarqube_extensions:/opt/data/sonarqube/extensions
+#     depends_on:
+#       - database
+#     networks:
+#       - sonarqube_network
 
-  kafka-ui:
-      container_name: kafka_ui
-      image: obsidiandynamics/kafdrop:latest
-      profiles: [ kafka ]
-      environment:
-        KAFKA_BROKERCONNECT: kafka-broker:9093
-      ports:
-        - 9003:9000
-      networks:
-        - kafka_network
-      depends_on:
-        - kafka-broker
+#   app-service-sonarscan:
+#     container_name: AppServiceSonarScan
+#     image: sonarsource/sonar-scanner-cli:latest
+#     restart: on-failure
+#     profiles: [ sonarqube ]
+#     environment:
+#       SONAR_HOST_URL: http://sonarqube:9000
+#       SONAR_TOKEN: sqa_a063cfa4dd7cf325bffcc835315a544565b1d723
+#     volumes:
+#       - ./SpringProject/projects/app-service/:/usr/src/
+#     depends_on:
+#       - sonarqube
+#       - database
+#     networks:
+#       - sonarqube_network
+#       - no_internet
 
-  database:
-    container_name: database
-    image: postgres:17
-    restart: on-failure
-    profiles: [ sonarqube, db ]
-    environment:
-      POSTGRES_DB: pgdb
-      POSTGRES_USER: projectpg
-      POSTGRES_PASSWORD: pguser
-    ports:
-      - 5432:5432
-    volumes:
-      - postgresql:/var/lib/postgresql
-      - postgresql_data:/var/lib/postgresql/data
-    networks:
-      - sonarqube_network
-      - database
-  keycloak:
-    container_name: keycloak
-    build:
-      context: .
-      dockerfile: dockerfiles/keycloak.Dockerfile
-    ports:
-      - "8080:8080"
-      - "8443:8443"
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_DB_URL: jdbc:postgresql://database/keycloak
-      KC_DB: postgres
-    command: ["start-dev"]
-    networks:
-      - database
-    volumes:
-      - ./keycloak:/opt/keycloak/files/
 volumes:
   sonarqube_data:
   sonarqube_logs:
@@ -118,7 +58,3 @@ networks:
   no_internet:
     driver: bridge
     internal: true
-  kafka_network:
-    driver: bridge
-  database:
-    driver: bridge

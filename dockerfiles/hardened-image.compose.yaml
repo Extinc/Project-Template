@@ -1,0 +1,7 @@
+
+
+services:
+  amazoncorretto:
+    container_name: amazoncorretto
+    image: dhi.io/amazoncorretto:21-alpine3.2:latest
+    restart: on-failure

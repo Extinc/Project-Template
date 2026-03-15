@@ -1,0 +1,45 @@
+services:
+  mailserver-setup:
+    container_name: docker-mailserver-setup
+    image: mailserver/docker-mailserver:15.1.0
+    hostname: mail.example.com
+    environment:
+      - ENABLE_SPAMASSASSIN=0
+      - ENABLE_CLAMAV=0
+      - ENABLE_FAIL2BAN=0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["sh", "-c", "setup email add admin@example.com yourpassword"]
+    volumes:
+      - mailserver-data:/var/mail/
+      - mailserver-state:/var/mail-state/
+      - mailserver-logs:/var/log/mail/
+      - ./docker-data/dms/mail-config:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+  mailserver:
+    container_name: docker-mailserver
+    image: mailserver/docker-mailserver:15.1.0
+    hostname: mail.example.com
+    environment:
+      - ENABLE_SPAMASSASSIN=0
+      - ENABLE_CLAMAV=0
+      - ENABLE_FAIL2BAN=0
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "993:993"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - mailserver-data:/var/mail/
+      - mailserver-state:/var/mail-state/
+      - mailserver-logs:/var/log/mail/
+      - ./docker-data/dms/mail-config:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - hoppscotch-proxy
+volumes:
+  mailserver-data:
+  mailserver-state:
+  mailserver-logs:

@@ -1,0 +1,19 @@
+services:
+  database:
+    container_name: database
+    image: postgres:17
+    restart: on-failure
+    environment:
+      POSTGRES_DB: pgdb
+      POSTGRES_USER: projectpg
+      POSTGRES_PASSWORD: pguser
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - database
+networks:
+  database:
+    driver: bridge
