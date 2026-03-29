@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+        scan="false"
+        scanPeriod="0"
+        debug="false"
+        packagingData="false">
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 1: PROPERTIES — Externalized, Never Hardcoded
+         ═══════════════════════════════════════════════════════ -->
+    <springProperty scope="context" name="APP_NAME"
+                    source="spring.application.name"
+                    defaultValue="unknown-service"/>
+    <springProperty scope="context" name="APP_VERSION"
+                    source="spring.application.version"
+                    defaultValue="unknown"/>
+    <springProperty scope="context" name="ENV"
+                    source="spring.profiles.active"
+                    defaultValue="unknown"/>
+    <springProperty scope="context" name="TEST_SCOPE"
+                    source="spring.profiles.test"
+                    defaultValue="unknown"/>
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 2: CUSTOM CONVERTERS
+         ═══════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 3: JSON PATTERNS
+         Three levels of detail based on destination
+         ═══════════════════════════════════════════════════════ -->
+
+    <!-- Standard application log — CloudWatch / SIEM -->
+    <property name="JSON_FULL" value=
+            "{&quot;timestamp&quot;:&quot;%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}&quot;,
+         &quot;level&quot;:&quot;%level&quot;,
+         &quot;service&quot;:&quot;${APP_NAME}&quot;,
+         &quot;version&quot;:&quot;${APP_VERSION}&quot;,
+         &quot;env&quot;:&quot;${ENV}&quot;,
+         &quot;region&quot;:&quot;${REGION}&quot;,
+         &quot;pid&quot;:&quot;${PID:-unknown}&quot;,
+         &quot;threadId&quot;:&quot;%X{threadId:-unknown}&quot;,
+         &quot;threadName&quot;:&quot;%thread&quot;,
+         &quot;traceId&quot;:&quot;%X{traceId:-none}&quot;,
+         &quot;spanId&quot;:&quot;%X{spanId:-none}&quot;,
+         &quot;parentSpanId&quot;:&quot;%X{parentSpanId:-none}&quot;,
+         &quot;requestId&quot;:&quot;%X{requestId:-none}&quot;,
+         &quot;correlationId&quot;:&quot;%X{correlationId:-none}&quot;,
+         &quot;sessionId&quot;:&quot;%X{sessionId:-none}&quot;,
+         &quot;userId&quot;:&quot;%X{userId:-anonymous}&quot;,
+         &quot;tenantId&quot;:&quot;%X{tenantId:-none}&quot;,
+         &quot;clientIp&quot;:&quot;%X{clientIp:-none}&quot;,
+         &quot;userAgent&quot;:&quot;%X{userAgent:-none}&quot;,
+         &quot;httpMethod&quot;:&quot;%X{httpMethod:-none}&quot;,
+         &quot;requestUri&quot;:&quot;%X{requestUri:-none}&quot;,
+         &quot;httpStatus&quot;:&quot;%X{httpStatus:-none}&quot;,
+         &quot;durationMs&quot;:&quot;%X{durationMs:-0}&quot;,
+         &quot;logger&quot;:&quot;%logger{40}&quot;,
+         &quot;message&quot;:&quot;%message&quot;,
+         &quot;exception&quot;:&quot;%replace(%ex{10}){'\n','\\n'}&quot;,
+         &quot;stackHash&quot;:&quot;%X{stackHash:-none}&quot;}%n"/>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 4: APPENDERS
+         ═══════════════════════════════════════════════════════ -->
+
+    <!-- 4a. Primary stdout — application logs -->
+    <appender name="STDOUT"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
+            <format>org.personal.appservice.util.JsonLayoutLogging</format>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 4b. Stderr — errors only, triggers CloudWatch alarms -->
+    <appender name="STDERR"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>${JSON_FULL}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 5: ASYNC WRAPPERS
+         Enterprise: Never block, never discard
+         ═══════════════════════════════════════════════════════ -->
+
+    <appender name="ASYNC_STDOUT"
+              class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT"/>
+        <queueSize>2048</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>false</neverBlock>
+        <maxFlushTime>5000</maxFlushTime>
+    </appender>
+
+    <appender name="ASYNC_STDERR"
+              class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDERR"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
+        <maxFlushTime>5000</maxFlushTime>
+    </appender>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 6: DEDICATED LOGGERS
+         Separate concerns — audit, perf, security
+         ═══════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 7: FRAMEWORK SUPPRESSION
+         Reduce noise — easier anomaly detection in SIEM
+         ═══════════════════════════════════════════════════════ -->
+
+    <!-- Database — never log queries in prod (data leakage) -->
+    <logger name="org.hibernate.SQL"                   level="OFF"/>
+    <logger name="org.hibernate.type"                  level="OFF"/>
+    <logger name="org.hibernate.orm.jdbc.bind"         level="OFF"/>
+    <logger name="com.zaxxer.hikari"                   level="WARN"/>
+    <logger name="com.zaxxer.hikari.HikariConfig"      level="WARN"/>
+
+    <!-- Spring internals -->
+    <logger name="org.springframework"                 level="WARN"/>
+    <logger name="org.springframework.web"             level="WARN"/>
+    <logger name="org.springframework.security"        level="WARN"/>
+    <logger name="org.springframework.boot.actuate"    level="WARN"/>
+    <logger name="org.springframework.cloud"           level="WARN"/>
+
+    <!-- AWS SDK — verbose by default -->
+    <logger name="software.amazon.awssdk"              level="WARN"/>
+    <logger name="com.amazonaws"                       level="WARN"/>
+
+    <!-- Messaging -->
+    <logger name="org.apache.kafka"                    level="WARN"/>
+    <logger name="io.lettuce"                          level="WARN"/>
+    <logger name="org.springframework.amqp"            level="WARN"/>
+
+    <!-- HTTP clients -->
+    <logger name="org.apache.http"                     level="WARN"/>
+    <logger name="feign"                               level="WARN"/>
+
+    <!-- Actuator — avoid health detail leakage -->
+    <logger name="org.springframework.boot.actuate.health" level="ERROR"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         SECTION 8: PROFILE-BASED ROOT CONFIGURATION
+         ═══════════════════════════════════════════════════════ -->
+
+    <!-- PRODUCTION -->
+    <springProfile name="production | prod">
+        <logger name="com.yourapp" level="${APP_LOG_LEVEL:-INFO}"/>
+        <root level="INFO">
+            <appender-ref ref="ASYNC_STDOUT"/>
+            <appender-ref ref="ASYNC_STDERR"/>
+        </root>
+    </springProfile>
+
+    <!-- DR — same as production -->
+    <springProfile name="dr | disaster-recovery">
+        <logger name="com.yourapp" level="INFO"/>
+        <root level="INFO">
+            <appender-ref ref="ASYNC_STDOUT"/>
+            <appender-ref ref="ASYNC_STDERR"/>
+        </root>
+    </springProfile>
+
+    <!-- STAGING — slightly more app detail -->
+    <springProfile name="staging | uat">
+        <logger name="com.yourapp" level="DEBUG"/>
+        <root level="INFO">
+            <appender-ref ref="ASYNC_STDOUT"/>
+            <appender-ref ref="ASYNC_STDERR"/>
+        </root>
+    </springProfile>
+
+    <!-- DEVELOPMENT — colored, human-readable -->
+    <springProfile name="development | dev | local">
+
+        <logger name="com.yourapp"      level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>  <!-- SQL ok in dev -->
+        <root level="DEBUG">
+            <appender-ref ref="ASYNC_STDOUT"/>
+            <appender-ref ref="ASYNC_STDERR"/>
+        </root>
+    </springProfile>
+
+</configuration>
